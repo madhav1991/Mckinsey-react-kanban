@@ -1,5 +1,6 @@
 import { Container, MantineProvider, Title } from '@mantine/core';
 import '@mantine/core/styles.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { KanbanBoard } from './components/KanbanBoard';
 
 export default function App() {
@@ -12,7 +13,9 @@ export default function App() {
           </Title>
         </header>
         <main aria-label="Rick and Morty Kanban Board">
-          <KanbanBoard />
+          <ErrorBoundary>
+            <KanbanBoard />
+          </ErrorBoundary>
         </main>
       </Container>
     </MantineProvider>
