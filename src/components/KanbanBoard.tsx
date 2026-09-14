@@ -8,10 +8,10 @@ import {
   KeyboardSensor,
   PointerSensor,
   closestCorners,
-  sortableKeyboardCoordinates,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import confetti from 'canvas-confetti';
 
 import { boardReducer, COLUMNS, initialBoardState } from '../state/boardReducer';

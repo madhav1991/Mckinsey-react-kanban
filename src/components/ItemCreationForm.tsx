@@ -170,7 +170,7 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
                 }
 
                 const charItem = characterResults.find((c) => c.name === option.value);
-                const imageUrl = (option as Record<string, unknown>).image as string || charItem?.image;
+                const imageUrl = ((option as unknown) as Record<string, unknown>).image as string || charItem?.image;
 
                 return (
                   <Group gap="xs" wrap="nowrap">

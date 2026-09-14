@@ -39,10 +39,6 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({ item }) => {
       mb="sm"
       bg="var(--mantine-color-body)"
     >
-      {/* 
-        Wrap ONLY the card's inner content in the drag handle ({...attributes} {...listeners}) 
-        leaving Mantine's outer Card padding/interactive elements clean.
-      */}
       <Box {...attributes} {...listeners}>
         <Text fw={500} size="sm" mb="xs" style={{ wordBreak: 'break-word' }}>
           {item.title}

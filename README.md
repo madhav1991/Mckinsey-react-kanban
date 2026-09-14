@@ -17,7 +17,7 @@ A frontend-only Kanban board built with **React**, **TypeScript**, **Vite**, **M
   - Move items between columns or reorder items within a column.
   - Inner card drag handle wrapping to keep outer Mantine Card padding clean.
 - **State Management**:
-  - Single `useReducer` managing all board operations (`ADD_ITEM`, `MOVE_ITEM`, `REORDER_ITEM`).
+  - Single `useReducer` managing all board operations (`ADD_ITEM`, `REORDER_ITEM`).
 - **Completion Celebration**:
   - Triggers `canvas-confetti` when an item is moved into the `Done` column.
 

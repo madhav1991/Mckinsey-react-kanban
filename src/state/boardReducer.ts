@@ -1,3 +1,4 @@
+import { arrayMove } from '@dnd-kit/sortable';
 import { BoardAction, BoardState, Column, KanbanItem } from '../types/kanban';
 
 export const COLUMNS: Column[] = [
@@ -60,16 +61,6 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
       };
     }
 
-    case 'MOVE_ITEM': {
-      const { itemId, targetColumnId } = action.payload;
-      return {
-        ...state,
-        items: state.items.map((item) =>
-          item.id === itemId ? { ...item, columnId: targetColumnId } : item
-        ),
-      };
-    }
-
     case 'REORDER_ITEM': {
       const { activeId, overId } = action.payload;
       if (activeId === overId) return state;
@@ -79,16 +70,33 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
 
       const activeItem = state.items[activeIndex];
 
-      // Check if overId is a column ID directly (dropping onto an empty column container)
+      // Check if overId is a column ID directly (dropping onto a column container)
       const isOverColumn = COLUMNS.some((col) => col.id === overId);
 
       if (isOverColumn) {
         const targetColumnId = overId as KanbanItem['columnId'];
         if (activeItem.columnId === targetColumnId) return state;
 
-        const updatedItems = [...state.items];
-        updatedItems[activeIndex] = { ...activeItem, columnId: targetColumnId };
-        return { ...state, items: updatedItems };
+        // Move to target column and append at the end of that column's items
+        const updatedActiveItem = { ...activeItem, columnId: targetColumnId };
+        const itemsWithoutActive = state.items.filter((item) => item.id !== activeId);
+
+        // Find the index of the last item belonging to the target column
+        let insertIndex = itemsWithoutActive.length;
+        for (let i = itemsWithoutActive.length - 1; i >= 0; i--) {
+          if (itemsWithoutActive[i].columnId === targetColumnId) {
+            insertIndex = i + 1;
+            break;
+          }
+        }
+
+        const updatedItems = [...itemsWithoutActive];
+        updatedItems.splice(insertIndex, 0, updatedActiveItem);
+
+        return {
+          ...state,
+          items: updatedItems,
+        };
       }
 
       // overId is another item ID
@@ -98,18 +106,15 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
       const overItem = state.items[overIndex];
       const targetColumnId = overItem.columnId;
 
-      const updatedItems = [...state.items];
-      // Update columnId if moving across columns
-      const updatedActiveItem = { ...activeItem, columnId: targetColumnId };
+      // Update columnId of activeItem
+      const itemsWithUpdatedColumn = state.items.map((item) =>
+        item.id === activeId ? { ...item, columnId: targetColumnId } : item
+      );
 
-      // Remove from old index
-      updatedItems.splice(activeIndex, 1);
-      // Insert at new index
-      updatedItems.splice(overIndex, 0, updatedActiveItem);
-
+      // Reorder items cleanly using arrayMove
       return {
         ...state,
-        items: updatedItems,
+        items: arrayMove(itemsWithUpdatedColumn, activeIndex, overIndex),
       };
     }
 

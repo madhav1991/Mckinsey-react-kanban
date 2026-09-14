@@ -25,5 +25,4 @@ export interface BoardState {
 
 export type BoardAction =
   | { type: 'ADD_ITEM'; payload: { title: string; character: Character; columnId?: ColumnId } }
-  | { type: 'MOVE_ITEM'; payload: { itemId: string; targetColumnId: ColumnId } }
   | { type: 'REORDER_ITEM'; payload: { activeId: string; overId: string } };
