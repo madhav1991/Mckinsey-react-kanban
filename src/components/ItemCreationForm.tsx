@@ -108,7 +108,7 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
   };
 
   return (
-    <Card withBorder shadow="sm" radius="md" p="md" mb="lg">
+    <Card component="section" aria-label="Create new task" withBorder shadow="sm" radius="md" p="md" mb="lg">
       <form onSubmit={handleSubmit}>
         <Stack gap="sm">
           <Text fw={600} size="md">
@@ -187,7 +187,7 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
           )}
 
           {error && (
-            <Text c="red" size="xs">
+            <Text c="red" size="xs" role="alert" aria-live="polite">
               {error}
             </Text>
           )}

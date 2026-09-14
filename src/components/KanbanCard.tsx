@@ -38,8 +38,11 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({ item }) => {
       radius="md"
       mb="sm"
       bg="var(--mantine-color-body)"
+      aria-label={`Task: ${item.title}, assigned to ${item.character.name}`}
+      {...attributes}
+      {...listeners}
     >
-      <Box {...attributes} {...listeners}>
+      <Box>
         <Text fw={500} size="sm" mb="xs" style={{ wordBreak: 'break-word' }}>
           {item.title}
         </Text>

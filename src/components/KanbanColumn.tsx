@@ -10,26 +10,30 @@ interface KanbanColumnProps {
   items: KanbanItem[];
 }
 
+const getBadgeColor = (id: string) => {
+  switch (id) {
+    case 'todo':
+      return 'blue';
+    case 'doing':
+      return 'yellow';
+    case 'done':
+      return 'green';
+    default:
+      return 'gray';
+  }
+};
+
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({ column, items }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
 
-  const getBadgeColor = (id: string) => {
-    switch (id) {
-      case 'todo':
-        return 'blue';
-      case 'doing':
-        return 'yellow';
-      case 'done':
-        return 'green';
-      default:
-        return 'gray';
-    }
-  };
+  const headingId = `col-title-${column.id}`;
 
   return (
     <Paper
+      component="section"
+      aria-labelledby={headingId}
       ref={setNodeRef}
       withBorder
       p="md"
@@ -43,10 +47,15 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ column, items }) => 
       }}
     >
       <Group justify="space-between" mb="md">
-        <Text fw={700} size="md">
+        <Text id={headingId} fw={700} size="md">
           {column.title}
         </Text>
-        <Badge color={getBadgeColor(column.id)} variant="light" radius="sm">
+        <Badge
+          color={getBadgeColor(column.id)}
+          variant="light"
+          radius="sm"
+          aria-label={`${items.length} tasks in ${column.title}`}
+        >
           {items.length}
         </Badge>
       </Group>

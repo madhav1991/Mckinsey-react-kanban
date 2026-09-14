@@ -1,5 +1,5 @@
 import React, { useReducer, useState } from 'react';
-import { Container, SimpleGrid } from '@mantine/core';
+import { SimpleGrid } from '@mantine/core';
 import {
   DndContext,
   DragEndEvent,
@@ -95,8 +95,38 @@ export const KanbanBoard: React.FC = () => {
     });
   };
 
+  // Screen reader announcements for keyboard drag-and-drop
+  const accessibilityAnnouncements = {
+    onDragStart({ active }: { active: { id: string | number } }) {
+      const item = state.items.find((i) => i.id === active.id);
+      const colName = COLUMNS.find((c) => c.id === item?.columnId)?.title || '';
+      return `Picked up task "${item?.title || active.id}" from ${colName} column.`;
+    },
+    onDragOver({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) {
+      if (!over) return undefined;
+      const item = state.items.find((i) => i.id === active.id);
+      const overColumn = COLUMNS.find((c) => c.id === over.id);
+      if (overColumn) {
+        return `Task "${item?.title}" is over ${overColumn.title} column.`;
+      }
+      const overItem = state.items.find((i) => i.id === over.id);
+      return `Task "${item?.title}" is over task "${overItem?.title}".`;
+    },
+    onDragEnd({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) {
+      if (!over) return `Task drag cancelled.`;
+      const item = state.items.find((i) => i.id === active.id);
+      const overColumn = COLUMNS.find((c) => c.id === over.id);
+      const targetCol = overColumn ? overColumn.title : COLUMNS.find((c) => c.id === state.items.find((i) => i.id === over.id)?.columnId)?.title;
+      return `Dropped task "${item?.title}" in ${targetCol || 'column'}.`;
+    },
+    onDragCancel({ active }: { active: { id: string | number } }) {
+      const item = state.items.find((i) => i.id === active.id);
+      return `Moving task "${item?.title}" was cancelled.`;
+    },
+  };
+
   return (
-    <Container size="xl" py="lg">
+    <>
       <ItemCreationForm onAddItem={handleAddItem} />
 
       <DndContext
@@ -104,6 +134,7 @@ export const KanbanBoard: React.FC = () => {
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        accessibility={{ announcements: accessibilityAnnouncements }}
       >
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
           {COLUMNS.map((column) => {
@@ -116,6 +147,6 @@ export const KanbanBoard: React.FC = () => {
           {activeItem ? <KanbanCardOverlay item={activeItem} /> : null}
         </DragOverlay>
       </DndContext>
-    </Container>
+    </>
   );
 };

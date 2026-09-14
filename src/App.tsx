@@ -6,10 +6,14 @@ export default function App() {
   return (
     <MantineProvider>
       <Container size="xl" py="md">
-        <Title order={2} ta="center" mb="lg" c="blue.7">
-          Rick and Morty Kanban Board
-        </Title>
-        <KanbanBoard />
+        <header>
+          <Title order={1} ta="center" mb="lg" c="blue.7" style={{ fontSize: '2rem' }}>
+            Rick and Morty Kanban Board
+          </Title>
+        </header>
+        <main aria-label="Rick and Morty Kanban Board">
+          <KanbanBoard />
+        </main>
       </Container>
     </MantineProvider>
   );
