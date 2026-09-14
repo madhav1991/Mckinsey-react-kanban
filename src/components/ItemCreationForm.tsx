@@ -58,7 +58,7 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
     };
   }, [debouncedQuery]);
 
-  // Construct dropdown options with loading & empty states
+  // Construct dropdown options using unique character ID as option value
   const getDropdownData = () => {
     if (loading) {
       return [{ value: '__loading__', label: 'Searching characters...', disabled: true }];
@@ -67,18 +67,18 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
       return [{ value: '__empty__', label: 'No characters found', disabled: true }];
     }
     return characterResults.map((char) => ({
-      value: char.name,
-      label: char.name,
-      id: char.id,
+      value: char.id, // unique ID guarantees Mantine option uniqueness
+      label: char.name, // display text
       image: char.image,
     }));
   };
 
   const handleOptionSubmit = (val: string) => {
     if (val === '__loading__' || val === '__empty__') return;
-    const foundChar = characterResults.find((c) => c.name === val);
+    const foundChar = characterResults.find((c) => c.id === val);
     if (foundChar) {
       setSelectedCharacter(foundChar);
+      setCharacterQuery(foundChar.name);
       setError('');
     }
   };
@@ -91,20 +91,13 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
       return;
     }
 
-    // Fallback: if selectedCharacter is null but input text matches a result
-    let charToStore = selectedCharacter;
-    if (!charToStore && characterQuery.trim()) {
-      charToStore = characterResults.find(
-        (c) => c.name.toLowerCase() === characterQuery.trim().toLowerCase()
-      ) || null;
-    }
-
-    if (!charToStore) {
+    // selectedCharacter is the single source of truth
+    if (!selectedCharacter) {
       setError('Please select a Rick and Morty character from the dropdown');
       return;
     }
 
-    onAddItem(title.trim(), charToStore);
+    onAddItem(title.trim(), selectedCharacter);
 
     // Reset form
     setTitle('');
@@ -141,7 +134,7 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
               value={characterQuery}
               onChange={(val) => {
                 setCharacterQuery(val);
-                if (selectedCharacter && selectedCharacter.name !== val) {
+                if (selectedCharacter && selectedCharacter.name !== val && selectedCharacter.id !== val) {
                   setSelectedCharacter(null);
                 }
                 if (error) setError('');
@@ -169,13 +162,12 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
                   );
                 }
 
-                const charItem = characterResults.find((c) => c.name === option.value);
-                const imageUrl = ((option as unknown) as Record<string, unknown>).image as string || charItem?.image;
+                const charItem = characterResults.find((c) => c.id === option.value);
 
                 return (
                   <Group gap="xs" wrap="nowrap">
-                    <Avatar src={imageUrl} alt={option.value} size="sm" radius="xl" />
-                    <Text size="sm">{option.value}</Text>
+                    {charItem && <Avatar src={charItem.image} alt={charItem.name} size="sm" radius="xl" />}
+                    <Text size="sm">{charItem ? charItem.name : option.value}</Text>
                   </Group>
                 );
               }}
@@ -184,9 +176,13 @@ export const ItemCreationForm: React.FC<ItemCreationFormProps> = ({ onAddItem })
 
           {selectedCharacter && (
             <Group gap="xs">
-              <Text size="xs" c="dimmed">Selected character:</Text>
+              <Text size="xs" c="dimmed">
+                Selected character:
+              </Text>
               <Avatar src={selectedCharacter.image} alt={selectedCharacter.name} size="xs" radius="xl" />
-              <Text size="xs" fw={500}>{selectedCharacter.name}</Text>
+              <Text size="xs" fw={500}>
+                {selectedCharacter.name}
+              </Text>
             </Group>
           )}
 
